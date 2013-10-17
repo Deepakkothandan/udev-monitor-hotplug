@@ -1,26 +1,24 @@
 # Description
 
-I was tired of having to configure manually the disposition of my monitors when I plugged them in.
+I too was tired of having to configure manually the disposition of my monitors when I plugged them in.
 
-So I decided to write this script that define custom behaviour when monitor are plugged in
+So I decided to google for "Monitor hotplugging linux" and found this script that defines custom behaviour when monitor are plugged in. I have adapted the original script to use loginctl, I'm sure this can be improved, and have set the monitors to --auto for resolution rather than statically setting one.
 
-You might want to adapt the script to your needs ./usr/local/bin/monitor-hotplug.sh 
+You might want to adapt the script to your needs, hotplug.sh
 
-I was inspired by http://stackoverflow.com/questions/5469828/how-to-create-a-callback-for-monitor-plugged-on-an-intel-graphics
+The original author was inspired by http://stackoverflow.com/questions/5469828/how-to-create-a-callback-for-monitor-plugged-on-an-intel-graphics
 
 ## Installation
   * clone the repo
-  * sudo cp usr/local/bin/monitor-hotplug.sh /usr/local/bin/
-  * sudo cp etc/udev/rules.d/99-monitor-hotplug.rules  /etc/udev/rules.d/
-  * sudo service udev restart
+  * move or copy hotplug.sh to your local path
+  * move or copy 99-monitor-hotplug.rules to /etc/udev/rules.d/
+  * consider rebooting or running `udevadm trigger` to load the rule
 
 ## Debuging
-  * sudo service udev stop
-  * sudo udevd --debug 2>&1 | tee /tmp/udev.log
-  * check what's happening when you plug/unplug your monitor
+  * `udevadm monitor --property` to see what happens when you plug or unplug a monitor
 
 
-## License 
+## License
 
 I'm not responsible of the effect of this script on your computer
 
