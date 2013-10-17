@@ -10,7 +10,7 @@ The original author was inspired by http://stackoverflow.com/questions/5469828/h
 
 ## Installation
   * clone the repo
-  * move or copy hotplug.sh to your local path
+  * move or copy hotplug.sh into your local $PATH
   * move or copy 99-monitor-hotplug.rules to /etc/udev/rules.d/
   * consider rebooting or running `udevadm trigger` to load the rule
 
