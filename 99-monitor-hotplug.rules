@@ -1,1 +1,1 @@
-ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", RUN+="/root/hotplug.sh"
+ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", RUN+="$PATH_TO_SCRIPT/hotplug.sh"
