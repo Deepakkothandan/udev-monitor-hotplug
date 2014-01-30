@@ -16,7 +16,7 @@ The original author was inspired by http://stackoverflow.com/questions/5469828/h
   * clone the repo
   * move or copy hotplug.sh somewhere special to you
   * move or copy 99-monitor-hotplug.rules to /etc/udev/rules.d/
-  * edit 99-monitor-hotplug.rules and replace "$PATH_TO_SCRIPT" with your special location for hotplug.sh ( I use "/home/gehidore/.local/pbin/udev-monitor-hotplug/hotplug.sh"
+  * edit 99-monitor-hotplug.rules and replace RUN+="..." with the path to hotplug.sh ( I use "/home/gehidore/.local/pbin/udev-monitor-hotplug/hotplug.sh" )
   * consider rebooting or running `udevadm trigger` to load the rule
 
 ## Debuging

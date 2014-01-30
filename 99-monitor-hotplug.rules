@@ -1,1 +1,1 @@
-ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", RUN+="$PATH_TO_SCRIPT/hotplug.sh"
+ACTION=="change", SUBSYSTEM=="drm", ENV{HOTPLUG}=="1", RUN+="/home/gehidore/.local/pbin/udev-monitor-hotplug/hotplug.sh"
