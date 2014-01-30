@@ -1,4 +1,8 @@
 #!/bin/bash
+# TODO: clean up code where possible
+# TODO: convert to switch statement for enabling the screens
+# TODO: resolve i3wm crash on hotplug, likely due to XAUTHORITY
+
 
 #Adapt this script to your needs.
 
@@ -17,7 +21,7 @@ else
 	exit 1
 fi
 
-#this while loop declare the $HDMI1 $VGA1 $LVDS1 $DVI-1-0 and others if they are plugged in
+#this while loop declare the $HDMI1 $VGA1 $LVDS1 $DISPLAYLINK and others if they are plugged in
 while read l
 do
 	DIR=$(dirname $l);
@@ -89,25 +93,25 @@ then
 elif [[ -n "$HDMI1" ]] && [[ -n "$VGA1" ]]
 then
 	echo "HDMI1 and VGA1 are plugged in"
-	#  xrandr --output LVDS1 --off
-	#xrandr --output VGA1 --auto --right-of LVDS1
-	#xrandr --output HDMI1 --auto --right-of VGA1
+
+	xrandr --output VGA1 --auto --right-of LVDS1
+	xrandr --output HDMI1 --auto --right-of VGA1
 elif [[ -n "$HDMI1" ]] && [[ -z "$VGA1" ]];
 then
 	echo "HDMI1 is plugged in, VGA1 and Display Link are unplugged"
-	#  xrandr --output LVDS1 --off
-	#xrandr --output VGA1 --off
-	#xrandr --output HDMI1 --auto --right-of LVDS1
+
+	xrandr --output VGA1 --off
+	xrandr --output HDMI1 --auto --right-of LVDS1
 elif [[ -z "$HDMI1" ]] && [[ -n "$VGA1" ]];
 then
 	echo "VGA1 is plugged in, HDMI1 and Display Link are unplugged"
-	#  xrandr --output LVDS1 --off
-	#xrandr --output HDMI1 --off
-	#xrandr --output VGA1 --auto --right-of LVDS1
+
+	xrandr --output HDMI1 --off
+	xrandr --output VGA1 --auto --right-of LVDS1
 else
 	echo "No external monitors are plugged in"
-	#  xrandr --output LVDS1 --off
-	#xrandr --output HDMI1 --off
-	#xrandr --output VGA1 --off
-	#  xrandr --output LVDS1 --mode 1366x768 --primary
+
+	xrandr --output DVI-1-0 --off
+	xrandr --output HDMI1 --off
+	xrandr --output VGA1 --off
 fi
