@@ -1,0 +1,12 @@
+[Unit]
+Description=User suspend actions
+Before=sleep.target
+
+[Service]
+User=%I
+Type=simple
+Environment=DISPLAY=:0
+ExecStart=/home/gehidore/.local/pbin/udev-monitor-hotuplug/removedl.sh
+
+[Install]
+WantedBy=sleep.target
