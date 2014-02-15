@@ -1,10 +1,18 @@
 #!/bin/bash
-# TODO:		clean up code where possible
-# TODO:		add more useful comments
-# TODO:		fix Xauthority conflict when user is using a display manager such as LightDM
-# TODO:		support more than one external monitor at a time
-# TODO:		fix disconnect issue with device names...
-# FIXED:	i3-wm crash on hotplug
+# Title:		hotplug.sh
+# Description:	see README.md
+# Author:		gehidore
+# Date:			2014-02-12
+# Version:		0.0.1
+# Usage:		see README.md
+#
+# TODO:			clean up code where possible
+# TODO:			add more useful comments
+# TODO:			fix Xauthority conflict when user is using a display manager such as LightDM
+# TODO:			support more than one external monitor at a time
+# TODO:			fix disconnect issue with device names...
+# TODO:			fix focused workspace failure when adding screen
+# FIXED:		i3-wm crash on hotplug
 
 # Functions cause they're awesome and more versatile
 
@@ -37,31 +45,31 @@ function setup_displaylink() {
 function workspaces() {
 	local SCREEN="LVDS1"
 	local MSG=$(i3-msg -t get_workspaces | json_pp)
-	# local NAMES=$(echo "$MSG" | grep 'name')
-	local FTEMP=$(echo "$MSG" | grep 'focused')
-	local FOCUSED=$(echo "$FTEMP" | sed -e 's/"focused" : //g' -e 's/,//g' | tr -d ' ')
+	local NAMES=$(echo "$MSG" | grep 'name' | sed s/'"name" : "\([^ ]\+\).*".*'/\\1/ | tr -d ' ')
+	local FOCUSED=$(echo "$MSG" | grep 'focused' | sed -e 's/"focused" : //g' -e 's/,//g' | tr -d ' ')
 	local COUNT=$(echo "$NAMES" | wc -l)
+
 	for LINE in $(seq 1 "$COUNT")
 	do
 		TF=$(echo "$FOCUSED" | sed -n "$LINE"p)
 		if [[ "$TF" == "true" ]]
 		then
-			local WORKSPACE="$LINE"
+			WORKSPACE=$(echo "$NAMES" | sed -n "$LINE"p)
 			continue
 		fi
 	done
-echo "$WORKSPACE"
+
 	if [[ ! -z $1 ]]
 	then
 		SCREEN="$1"
 	fi
 
-	# loop through workspaces in reverse 9-5 and move them to the new output, return to the initial focused workspace.
+	# loop through workspaces in reverse 10-5 and move them to the new output, return to the initial focused workspace.
 	for ID in {9..5}
 	do
-		echo "$ID"
-		echo "$SCREEN"
-		echo "$WORKSPACE"
+		# echo "$ID"
+		# echo "$SCREEN"
+		# echo "$WORKSPACE"
 		i3-msg -q "workspace $ID; move workspace to output $SCREEN; workspace $WORKSPACE;"
 	done
 }
@@ -120,7 +128,6 @@ function outputs() {
 
 # begin
 function init() {
-echo 'init'
 	DLID=""
 	DISPLAYNUM=$(ls /tmp/.X11-unix/* | sed s#/tmp/.X11-unix/X##)
 	export DISPLAY=":$DISPLAYNUM"
@@ -139,5 +146,16 @@ echo 'init'
 	outputs
 }
 
-#start this puppy rolling
-init
+# auxiliary function for disconnect
+function removedl() {
+	local DISPLAYLINK=$(setup_displaylink)
+	workspaces
+	xrandr --output "$DISPLAYLINK" --off
+}
+
+if [[ $1 == "removedl" ]]
+then
+	removedl
+else
+	init
+fi
