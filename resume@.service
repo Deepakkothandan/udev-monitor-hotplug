@@ -6,7 +6,7 @@ After=suspend.target
 User=%I
 Type=simple
 Environment=DISPLAY=:0
-ExecStart=/home/gehidore/.local/pbin/udev-monitor-hotuplug/hotplug.sh
+ExecStart=/home/gehidore/.local/pbin/udev-monitor-hotplug/hotplug.sh
 
 [Install]
 WantedBy=suspend.target

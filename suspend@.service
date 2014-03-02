@@ -6,7 +6,7 @@ Before=sleep.target
 User=%I
 Type=simple
 Environment=DISPLAY=:0
-ExecStart=/home/gehidore/.local/pbin/udev-monitor-hotuplug/removedl.sh removedl
+ExecStart=/home/gehidore/.local/pbin/udev-monitor-hotplug/removedl.sh removedl
 
 [Install]
 WantedBy=sleep.target
