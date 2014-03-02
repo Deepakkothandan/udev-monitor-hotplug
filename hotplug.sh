@@ -44,7 +44,7 @@ function setup_displaylink() {
 # set and recover workspaces as needed
 function workspaces() {
 	local SCREEN="LVDS1"
-	local MSG=$(i3-msg -t get_workspaces | json_pp)
+	local MSG=$(i3-msg -t get_workspaces | /usr/bin/core_perl/json_pp)
 	local NAMES=$(echo "$MSG" | grep 'name' | sed s/'"name" : "\([^ ]\+\).*".*'/\\1/ | tr -d ' ')
 	local FOCUSED=$(echo "$MSG" | grep 'focused' | sed -e 's/"focused" : //g' -e 's/,//g' | tr -d ' ')
 	local COUNT=$(echo "$NAMES" | wc -l)
