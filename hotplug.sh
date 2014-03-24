@@ -59,17 +59,21 @@ function workspaces() {
 		fi
 	done
 
-	if [[ ! -z $1 ]]
+	if [[ ! -z "$1" ]]
 	then
 		SCREEN="$1"
 	fi
 
-	# loop through workspaces in reverse 10-5 and move them to the new output, return to the initial focused workspace.
+	# loop through workspaces in reverse 9-5 and move them to the new output, return to the initial focused workspace.
 	for ID in {9..5}
 	do
 		# echo "$ID"
 		# echo "$SCREEN"
 		# echo "$WORKSPACE"
+		if [[ 5 -eq "$ID" && ! -z "$2" ]]
+		then
+			SCREEN="$2"
+		fi
 		i3-msg -q "workspace $ID; move workspace to output $SCREEN; workspace $WORKSPACE;"
 	done
 }
@@ -110,12 +114,21 @@ function outputs() {
 	for OUTPUT in "${OUTPUTS[@]}"
 	do
 		case "$OUTPUT" in
-			HDMI*)
-				local HDMI="--output $OUTPUT --preferred --below LVDS1 --rotate normal"
-				;;
 			DISPLAYLINK)
 				local DL=$(setup_displaylink)
-				local DISPLAYLINK="--output $DL --mode 1368x768_59.99 --right-of LVDS1 --rotate normal"
+				local DISPLAYLINK="--output $DL --mode 1368x768_59.99 --above LVDS1 --rotate normal"
+				;;
+			HDMI*)
+				local DL=$(setup_displaylink)
+				if [[ ! -z "$DL" ]]
+				then
+					# DL attached change location of HDMI screen
+					local HDMI="--output $OUTPUT --preferred --right-of $DL --rotate normal"
+					local BIG="HDMI1"
+				else
+					# DL not attached let location of HDMI screen
+					local HDMI="--output $OUTPUT --preferred --below LVDS1 --rotate normal"
+				fi
 				;;
 			VGA*)
 				local VGA="--output $OUTPUT --preferred --below LVDS1 --rotate normal"
@@ -123,7 +136,7 @@ function outputs() {
 		esac
 	done
 	xrandr $(echo "$DISPLAYLINK" "$HDMI" "$VGA")
-	workspaces $DL
+	workspaces "$DL" "$BIG"
 }
 
 # begin
