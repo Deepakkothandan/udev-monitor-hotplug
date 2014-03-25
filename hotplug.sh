@@ -120,7 +120,9 @@ function outputs() {
 				;;
 			HDMI*)
 				local DL=$(setup_displaylink)
-				if [[ ! -z "$DL" ]]
+				local CONNECTED=$(echo "$DL" | sed -n '2p')
+				echo -e "$CONNECTED"
+				if [[ "DVI-1-" != "$CONNECTED" ]]
 				then
 					# DL attached change location of HDMI screen
 					local HDMI="--output $OUTPUT --preferred --right-of $DL --rotate normal"
@@ -128,6 +130,7 @@ function outputs() {
 				else
 					# DL not attached let location of HDMI screen
 					local HDMI="--output $OUTPUT --preferred --below LVDS1 --rotate normal"
+					echo "$HDMI"
 				fi
 				;;
 			VGA*)
