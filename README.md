@@ -34,6 +34,10 @@ Feel free to do whatever you want with it :-)
 ## Changelog ##
 
 
+### 0.0.2 ###
+Enabled multiple monitor hotpluging: HDMI1 + VGA1 + Display Link
+Fixed hotplug disconnect of fixed video devices: HDMI1 & VGA1
+
 ### 0.0.1 ###
 Latest adjustments, code cleanup, added dynamic pluggability to a *single* Display Link device.
 Accidental unplug should still recover workspaces in i3-wm.

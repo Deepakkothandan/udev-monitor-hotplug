@@ -3,7 +3,7 @@
 # Description:	see README.md
 # Author:		gehidore
 # Date:			2014-02-12
-# Version:		0.0.1
+# Version:		0.0.2
 # Usage:		see README.md
 #
 # TODO:			clean up code where possible
