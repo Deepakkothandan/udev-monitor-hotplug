@@ -67,7 +67,7 @@ function workspaces() {
 			# HDMI1
 			for ID in {10..5}
 			do
-				i3-msg -q "workspace $ID; move workspace to output HDMI; workspace $WORKSPACE;"
+				i3-msg -q "workspace $ID; move workspace to output HDMI1; workspace $WORKSPACE;"
 			done
 		fi
 
