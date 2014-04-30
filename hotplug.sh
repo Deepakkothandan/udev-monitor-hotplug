@@ -3,15 +3,13 @@
 # Description:	see README.md
 # Author:		gehidore
 # Date:			2014-02-12
-# Version:		0.0.2
+# Version:		0.0.2-generic
 # Usage:		see README.md
 #
 # TODO:			clean up code where possible
 # TODO:			add more useful comments
 # TODO:			fix Xauthority conflict when user is using a display manager such as LightDM
 # TODO:			fix disconnect issue with device names...
-# TODO:			fix focused workspace failure when adding screen
-# FIXED:		i3-wm crash on hotplug
 # FIXED:		more than one external screen at a time
 # Fixed:		disconnect of VGA1 and HDMI1 screens
 
@@ -40,76 +38,6 @@ function setup_displaylink() {
 	fi
 
 	echo "$DLID"
-}
-
-# set and recover workspaces as needed
-function workspaces() {
-	local SCREEN="LVDS1"
-	local MSG=$(i3-msg -t get_workspaces | /usr/bin/core_perl/json_pp)
-	local NAMES=$(echo "$MSG" | grep 'name' | sed s/'"name" : "\([^ ]\+\).*".*'/\\1/ | tr -d ' ')
-	local FOCUSED=$(echo "$MSG" | grep 'focused' | sed -e 's/"focused" : //g' -e 's/,//g' | tr -d ' ')
-	local COUNT=$(echo "$NAMES" | wc -l)
-
-	for LINE in $(seq 1 "$COUNT")
-	do
-		TF=$(echo "$FOCUSED" | sed -n "$LINE"p)
-		if [[ "$TF" == "true" ]]
-		then
-			WORKSPACE=$(echo "$NAMES" | sed -n "$LINE"p)
-			continue
-		fi
-	done
-
-	if [[ ! -z "$3" ]] || [[ ! -z "$3" ]]
-	then
-		if [[ "HDMI1" == "$2" ]]
-		then
-			# HDMI1
-			for ID in {10..5}
-			do
-				i3-msg -q "workspace $ID; move workspace to output HDMI1; workspace $WORKSPACE;"
-			done
-		fi
-
-		if [[ "VGA1" == "$3" ]]
-		then
-			# VGA1
-			for ID in {6,4}
-			do
-				i3-msg -q "workspace $ID; move workspace to output VGA1; workspace $WORKSPACE;"
-			done
-		fi
-
-		if [[ ! -z "$1" ]]
-		then
-			SCREEN="$1"
-			# DL
-			for ID in {3..1}
-			do
-				i3-msg -q "workspace $ID; move workspace to output $SCREEN; workspace $WORKSPACE;"
-			done
-		fi
-	else
-
-		if [[ ! -z "$1" ]]
-		then
-			SCREEN="$1"
-		fi
-
-		# loop through workspaces in reverse 9-5 and move them to the new output, return to the initial focused workspace.
-		for ID in {9..5}
-		do
-			# echo "$ID"
-			# echo "$SCREEN"
-			# echo "$WORKSPACE"
-			if [[ 5 -eq "$ID" && ! -z "$2" ]]
-			then
-				SCREEN="$2"
-			fi
-			i3-msg -q "workspace $ID; move workspace to output $SCREEN; workspace $WORKSPACE;"
-		done
-
-	fi
 }
 
 # get the outputs
@@ -147,7 +75,8 @@ function outputs() {
 	# setup the screens and turn them on or off as needed
 	if [[ ! -z "$DISPLAYLINK" ]] && [[ ! -z "$HDMI1" ]] && [[ ! -z "$VGA1" ]]
 	then
-		# DisplayLink, VGA1, and HDMI1 - disable LVDS1
+		echo "DisplayLink, VGA1, and HDMI1 - disable LVDS1"
+		# DisplayLink, VGA1, and HDMI1 - disable LVDS1t
 		# [VGA1 ][HDMI1]
 		# [DL   ]
 		local DL=$(setup_displaylink)
@@ -155,29 +84,41 @@ function outputs() {
 			--output VGA1 --primary --preferred \
 			--output HDMI1 --preferred --right-of VGA1 \
 			--output $DL --mode 1368x768_59.99 --below VGA1
-		workspaces "$DL" "HDMI" "VGA1"
 
 	elif [[ ! -z "$HDMI1" ]] && [[ ! -z "$VGA1" ]];
 	then
+		echo "VGA1 and HDMI1 - disable LVDS1"
 		# VGA1 and HDMI1 - disable LVDS1
 		# [VGA1 ][HDMI1]
 		xrandr --output LVDS1 --off \
 			--output VGA1 --primary --preferred \
 			--output HDMI1 --preferred --right-of VGA1
-		workspaces "" "HDMI1" "VGA1"
+
+	elif [[ ! -z "$HDMI1" ]] && [[ ! -z "$DISPLAYLINK" ]];
+	then
+		local DL=$(setup_displaylink)
+		echo "VGA1 and HDMI1 - disable LVDS1"
+		# VGA1 and HDMI1 - disable LVDS1
+		#        [HDMI1]
+		# [DL   ][LVDS1]
+		xrandr --output LVDS1 --primary --preferred \
+			--output VGA1 --off \
+			--output HDMI1 --preferred --above LVDS1
+			--output $DL --mode 1368x768_59.99 --left-of LVDS1
 
 	elif [[ ! -z "$DISPLAYLINK" ]];
 	then
+		echo "LVDS1 and DisplayLink - disable HDMI1 and VGA1"
 		# LVDS1 and DisplayLink - disable HDMI1 and VGA1
 		# [LVDS1][DL   ]
 		local DL=$(setup_displaylink)
 		xrandr --output HDMI1 --off \
 			--output LVDS1 --primary --preferred \
 			--output $DL --mode 1368x768_59.99 --right-of LVDS1 --output VGA1 --off
-		workspaces "$DL"
 
 	elif [[ ! -z "$VGA" ]];
 	then
+		echo "LVDS1 and VGA1 - disable HDMI1 and VGA1"
 		# LVDS1 and VGA1 - disable HDMI1 and VGA1
 		# [LVDS1][VGA1   ]
 		local DL=$(setup_displaylink)
@@ -186,10 +127,10 @@ function outputs() {
 			--output LVDS1 --primary --preferred \
 			$DLOFF \
 			--output VGA1 --below LVDS1
-		workspaces "" "" "VGA1"
 
 	elif [[ ! -z "$HDMI" ]];
 	then
+		echo "LVDS1 and DisplayLink - disable HDMI1 and VGA1"
 		# LVDS1 and DisplayLink - disable HDMI1 and VGA1
 		# [LVDS1][DL   ]
 		local DL=$(setup_displaylink)
@@ -198,14 +139,13 @@ function outputs() {
 			--output LVDS1 --primary --preferred \
 			$DLOFF \
 			--output VGA1 --off
-		workspaces "" "HDMI1"
 
 	else
+		echo "LVDS1 - disable VGA1 and HDMI1"
 		# LVDS1 - disable VGA1 and HDMI1
 		# [LVDS1]
 		xrandr --output LVDS1 --primary --preferred \
 			--output VGA1 --off --output HDMI1 --off
-		workspaces
 
 	fi
 }
@@ -220,7 +160,8 @@ function init() {
 	if [[ $(loginctl list-sessions | grep -q seat0) -eq 0 ]]; then
 		# from https://wiki.archlinux.org/index.php/Acpid#Laptop_Monitor_Power_Off
 		# export XAUTHORITY=$(ps -C X -f --no-header | sed -n 's/.*-auth //; s/ -[^ ].*//; p')
-		export XAUTHORITY="/home/gehidore/.Xauthority"
+		local YOURUSER="" # change me to match your users homedir
+		export XAUTHORITY="/home/$YOURUSER/.Xauthority"
 	else
 		echo "unable to find an X session"
 		exit 1
@@ -233,7 +174,6 @@ function init() {
 # auxiliary function for disconnect
 function removedl() {
 	local DISPLAYLINK=$(setup_displaylink)
-	workspaces
 	xrandr --output "$DISPLAYLINK" --off
 }
 
